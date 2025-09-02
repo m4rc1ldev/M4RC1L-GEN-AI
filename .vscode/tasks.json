@@ -1,0 +1,19 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "install-sharp",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"install",
+				"sharp@^0.33.5"
+			],
+			"isBackground": false,
+			"problemMatcher": [
+				"$npm-cli"
+			],
+			"group": "build"
+		}
+	]
+}
