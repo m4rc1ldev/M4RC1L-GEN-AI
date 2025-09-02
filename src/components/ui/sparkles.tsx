@@ -28,7 +28,7 @@ export function SparklesCore({
   if (!maybe) return;
   const ctx = maybe as CanvasRenderingContext2D;
 
-    let dpr = Math.max(1, window.devicePixelRatio || 1);
+  const dpr = Math.max(1, window.devicePixelRatio || 1);
     let width = 0;
     let height = 0;
 
