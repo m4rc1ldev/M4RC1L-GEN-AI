@@ -105,14 +105,21 @@ export default function ImageGenPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ mode, prompt, ratio, style, image: imageBase64, strength, mask: maskBase64, maskSource: "MASK_IMAGE_BLACK" }),
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data?.error || "Failed");
-      if (mode === "img2txt") {
-        setCaption((data.caption as string) || null);
-      } else {
-        setImgUrl(data.url as string);
+      // Try to parse JSON, but if it fails, surface raw text
+      let data: { url?: string; caption?: string; provider?: string; error?: string } | null = null;
+      try {
+        data = await res.json();
+      } catch {
+        const txt = await res.text().catch(() => "");
+        throw new Error(`HTTP ${res.status}: ${txt || res.statusText || "Failed"}`);
       }
-      setProvider(data.provider || null);
+      if (!res.ok) throw new Error(data?.error || `HTTP ${res.status}`);
+      if (mode === "img2txt") {
+        setCaption(data?.caption || null);
+      } else {
+        setImgUrl(data?.url || null);
+      }
+      setProvider(data?.provider || null);
     } catch (e: unknown) {
       const msg =
         e && typeof e === "object" && "message" in e && typeof (e as { message?: unknown }).message === "string"

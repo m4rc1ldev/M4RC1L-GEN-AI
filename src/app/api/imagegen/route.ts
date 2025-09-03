@@ -1,6 +1,11 @@
 import { NextResponse } from "next/server";
 import sharp from "sharp";
 
+// Force Node.js runtime (sharp is not supported on edge)
+export const runtime = "nodejs";
+// Always dynamic (no static prerender) so POST works reliably in prod
+export const dynamic = "force-dynamic";
+
 type Ratio = "1:1" | "16:9" | "4:3" | "3:2" | "2:3" | "9:16" | "21:9";
 
 function ratioToSize(ratio: Ratio): { width: number; height: number } {
@@ -352,4 +357,17 @@ export async function POST(req: Request) {
         : "Unknown error";
     return NextResponse.json({ error: message }, { status: 500 });
   }
+}
+
+// Helpful for accidental GETs or browser prefetches; respond with JSON instead of an empty 405
+export async function GET() {
+  return NextResponse.json(
+    { ok: false, message: "Use POST for /api/imagegen", allow: ["POST", "OPTIONS"] },
+    { status: 200, headers: { Allow: "POST, OPTIONS" } }
+  );
+}
+
+// Allow preflight if any; keeps clients from failing on OPTIONS
+export async function OPTIONS() {
+  return NextResponse.json({}, { status: 200, headers: { Allow: "POST, OPTIONS" } });
 }
