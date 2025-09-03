@@ -5,6 +5,8 @@ import sharp from "sharp";
 export const runtime = "nodejs";
 // Always dynamic (no static prerender) so POST works reliably in prod
 export const dynamic = "force-dynamic";
+// Disable edge caching
+export const revalidate = 0;
 
 type Ratio = "1:1" | "16:9" | "4:3" | "3:2" | "2:3" | "9:16" | "21:9";
 
@@ -138,6 +140,7 @@ async function generateTxt2Img(prompt: string, ratio: Ratio, style: string) {
 }
 
 export async function POST(req: Request) {
+  console.log("ImageGen POST called:", new Date().toISOString());
   try {
     const body = (await req.json()) as {
   mode?: "txt2img" | "img2img" | "img2txt" | "inpaint";
@@ -369,5 +372,16 @@ export async function GET() {
 
 // Allow preflight if any; keeps clients from failing on OPTIONS
 export async function OPTIONS() {
-  return NextResponse.json({}, { status: 200, headers: { Allow: "POST, OPTIONS" } });
+  return NextResponse.json(
+    { ok: true, message: "CORS preflight" }, 
+    { 
+      status: 200, 
+      headers: { 
+        Allow: "POST, OPTIONS",
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "POST, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type, Authorization",
+      } 
+    }
+  );
 }
