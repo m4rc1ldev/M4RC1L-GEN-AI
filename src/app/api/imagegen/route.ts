@@ -1,10 +1,17 @@
 import { NextResponse } from "next/server";
-import sharp from "sharp";
 
-// Force Node.js runtime (sharp is not supported on edge)
+// Force Node.js runtime for better compatibility
 export const runtime = "nodejs";
 // Always dynamic (no static prerender) so POST works reliably in prod
 export const dynamic = "force-dynamic";
+
+// Conditionally import sharp only if available
+let sharp: typeof import("sharp") | null = null;
+try {
+  sharp = eval('require("sharp")');
+} catch (error) {
+  console.warn("Sharp not available, image resizing disabled:", error);
+}
 // Disable edge caching
 export const revalidate = 0;
 
@@ -204,14 +211,25 @@ export async function POST(req: Request) {
 
       // Read original size and resize to the closest allowed pair if needed
       const inputBuffer = Buffer.from(bytes);
-      const meta = await sharp(inputBuffer).metadata();
-      const inW = meta.width ?? 0;
-      const inH = meta.height ?? 0;
-      const [tW, tH] = inW && inH ? closestPair(inW, inH) : [1024, 1024];
-      const needsResize = !(inW === tW && inH === tH);
-      const resizedBuffer = needsResize
-        ? await sharp(inputBuffer).resize(tW, tH, { fit: "cover" }).png().toBuffer()
-        : inputBuffer;
+      let resizedBuffer: Buffer = inputBuffer;
+      let tW = 1024, tH = 1024; // Default size
+      
+      if (sharp) {
+        try {
+          const meta = await sharp(inputBuffer).metadata();
+          const inW = meta.width ?? 0;
+          const inH = meta.height ?? 0;
+          [tW, tH] = inW && inH ? closestPair(inW, inH) : [1024, 1024];
+          const needsResize = !(inW === tW && inH === tH);
+          if (needsResize) {
+            resizedBuffer = Buffer.from(await sharp(inputBuffer).resize(tW, tH, { fit: "cover" }).png().toBuffer());
+          }
+        } catch (err) {
+          console.warn("Sharp processing failed, using original image:", err);
+        }
+      } else {
+        console.log("Sharp not available, using original image size");
+      }
 
   const ab = resizedBuffer.buffer.slice(resizedBuffer.byteOffset, resizedBuffer.byteOffset + resizedBuffer.byteLength) as ArrayBuffer;
   const model = process.env.STABILITY_MODEL || "sd3.5-large";
@@ -283,12 +301,24 @@ export async function POST(req: Request) {
       }
 
       const inputBuffer = Buffer.from(imgBytes);
-      const meta = await sharp(inputBuffer).metadata();
-      const inW = meta.width ?? 0;
-      const inH = meta.height ?? 0;
-      const [tW, tH] = inW && inH ? closestPair(inW, inH) : [1024, 1024];
-      const baseResized = await sharp(inputBuffer).resize(tW, tH, { fit: "cover" }).png().toBuffer();
-      const maskResized = await sharp(Buffer.from(maskBytes)).resize(tW, tH, { fit: "cover" }).png().toBuffer();
+      let tW = 1024, tH = 1024; // Default size
+      let baseResized: Buffer = inputBuffer;
+      let maskResized: Buffer = Buffer.from(maskBytes);
+      
+      if (sharp) {
+        try {
+          const meta = await sharp(inputBuffer).metadata();
+          const inW = meta.width ?? 0;
+          const inH = meta.height ?? 0;
+          [tW, tH] = inW && inH ? closestPair(inW, inH) : [1024, 1024];
+          baseResized = Buffer.from(await sharp(inputBuffer).resize(tW, tH, { fit: "cover" }).png().toBuffer());
+          maskResized = Buffer.from(await sharp(Buffer.from(maskBytes)).resize(tW, tH, { fit: "cover" }).png().toBuffer());
+        } catch (err) {
+          console.warn("Sharp processing failed for inpaint, using original images:", err);
+        }
+      } else {
+        console.log("Sharp not available for inpaint, using original image sizes");
+      }
 
       const baseAb = baseResized.buffer.slice(baseResized.byteOffset, baseResized.byteOffset + baseResized.byteLength) as ArrayBuffer;
       const maskAb = maskResized.buffer.slice(maskResized.byteOffset, maskResized.byteOffset + maskResized.byteLength) as ArrayBuffer;
