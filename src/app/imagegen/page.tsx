@@ -127,25 +127,22 @@ export default function ImageGenPage() {
   return (
     <main className="min-h-screen relative overflow-hidden">
       <div className="absolute inset-0 -z-10 bg-background" />
-      <section className="container mx-auto px-6 py-24 md:py-28">
+      <section className="container mx-auto px-4 sm:px-6 py-16 md:py-24">
         <GlowingEffect spread={60} glow className="rounded-2xl">
           <div className="rounded-2xl p-4 bg-transparent">
             <Card className="rounded-2xl border bg-background/60 backdrop-blur supports-[backdrop-filter]:bg-background/60">
               <CardHeader>
                 <CardTitle>ImageGen</CardTitle>
                 <CardDescription>
-                  Text→Image, Image→Image, and Image→Text.
+                  Text→Image.
                   <span className="ml-2 opacity-70">Powered by Hugging Face + Stability</span>
                 </CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="pb-24 md:pb-6">
                 {/* Mode toggle */}
-                <div className="inline-flex rounded-lg border bg-background p-1 text-xs mb-4">
+                <div className="inline-flex rounded-lg border bg-background p-1 text-xs mb-4 max-w-full overflow-x-auto whitespace-nowrap gap-1">
                     {([ 
                     { id: "txt2img", label: "Text → Image" },
-                    { id: "img2img", label: "Image → Image" },
-                      { id: "img2txt", label: "Image → Text" },
-                      { id: "inpaint", label: "Inpaint (Mask)" },
                   ] as Array<{ id: Mode; label: string }>).map((m) => (
                     <button
                       key={m.id}
@@ -173,7 +170,7 @@ export default function ImageGenPage() {
                     />
                     {mode !== "img2img" && (
                       <Select value={ratio} onValueChange={setRatio}>
-                        <SelectTrigger className="min-w-[8rem]"><SelectValue placeholder="Aspect" /></SelectTrigger>
+                        <SelectTrigger className="min-w-[8rem] sm:w-[8rem] w-full"><SelectValue placeholder="Aspect" /></SelectTrigger>
                         <SelectContent>
                           {RATIOS.map(r => (
                             <SelectItem key={r.id} value={r.id}>{r.label}</SelectItem>
@@ -182,7 +179,7 @@ export default function ImageGenPage() {
                       </Select>
                     )}
                     <Select value={style} onValueChange={setStyle}>
-                      <SelectTrigger className="min-w-[9rem]"><SelectValue placeholder="Style" /></SelectTrigger>
+                      <SelectTrigger className="min-w-[9rem] sm:w-[9rem] w-full"><SelectValue placeholder="Style" /></SelectTrigger>
                       <SelectContent>
                         {STYLES.map(s => (
                           <SelectItem key={s.id} value={s.id}>{s.label}</SelectItem>
@@ -219,7 +216,8 @@ export default function ImageGenPage() {
                   </div>
                 )}
 
-                <div className="mt-3">
+                {/* Desktop action */}
+                <div className="mt-3 hidden md:block">
                   <Button onClick={generate} disabled={loading || (mode === "txt2img" && !prompt.trim())}>
                     {loading ? "Generating..." : mode === "img2txt" ? "Caption Image" : "Generate"}
                   </Button>
@@ -240,19 +238,19 @@ export default function ImageGenPage() {
                   {filePreview && (
                     <div>
                       <div className="text-sm mb-2 text-muted-foreground">Input image</div>
-                      <img src={filePreview} alt="Input" className="rounded-md border max-w-full" />
+                      <img src={filePreview} alt="Input" className="rounded-md border max-w-full w-full h-auto object-contain" />
                     </div>
                   )}
                   {maskPreview && (
                     <div>
                       <div className="text-sm mb-2 text-muted-foreground">Mask</div>
-                      <img src={maskPreview} alt="Mask" className="rounded-md border max-w-full" />
+                      <img src={maskPreview} alt="Mask" className="rounded-md border max-w-full w-full h-auto object-contain" />
                     </div>
                   )}
                   {imgUrl && (
                     <div>
                       <div className="text-sm mb-2 text-muted-foreground">Result</div>
-                      <img src={imgUrl} alt="Result" className="rounded-md border max-w-full" />
+                      <img src={imgUrl} alt="Result" className="rounded-md border max-w-full w-full h-auto object-contain" />
                     </div>
                   )}
                 </div>
@@ -266,6 +264,18 @@ export default function ImageGenPage() {
           </div>
         </GlowingEffect>
       </section>
+      {/* Mobile sticky action */}
+      <div className="md:hidden fixed bottom-4 left-0 right-0 px-4">
+        <div className="mx-auto max-w-screen-sm">
+          <Button
+            onClick={generate}
+            disabled={loading || (mode === "txt2img" && !prompt.trim())}
+            className="w-full rounded-full shadow-lg"
+          >
+            {loading ? "Generating..." : mode === "img2txt" ? "Caption Image" : "Generate"}
+          </Button>
+        </div>
+      </div>
     </main>
   );
 }

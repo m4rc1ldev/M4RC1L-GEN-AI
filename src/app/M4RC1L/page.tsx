@@ -9,7 +9,8 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
-import { Plus, Settings, Trash2, Send, Loader2 } from "lucide-react";
+import { Plus, Settings, Trash2, Send, Loader2, Menu, RotateCcw } from "lucide-react";
+import Link from "next/link";
 
 type Msg = { role: "user" | "assistant"; content: string; think?: string };
 type ReqMessage = { role: "system" | "user" | "assistant" | "tool"; content: string };
@@ -63,6 +64,8 @@ export default function M4RC1LPage() {
   const typingTimerRef = useRef<number | null>(null);
   const [showSettings, setShowSettings] = useState(false);
   const idCounterRef = useRef(2);
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const [modelMenuOpen, setModelMenuOpen] = useState(false);
 
   const activeMessages = sessions[active]?.messages ?? [];
 
@@ -463,10 +466,27 @@ export default function M4RC1LPage() {
 
           <ResizablePanel defaultSize={76} minSize={50}>
             <div className="h-screen flex flex-col min-h-0">
+              {/* Mobile top bar */}
+              <div className="md:hidden sticky top-0 z-10 bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
+                <div className="px-4 h-12 flex items-center justify-between">
+                  <Button size="icon" variant="ghost" aria-label="Menu" onClick={() => setMobileSidebarOpen(true)}>
+                    <Menu className="h-5 w-5" />
+                  </Button>
+                  <Link href="/upgrade" className="text-xs font-medium px-3 py-1 rounded-full bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-200">
+                    Upgrade to Go
+                  </Link>
+                  <Button size="icon" variant="ghost" aria-label="Refresh" onClick={() => window.location.reload()}>
+                    <RotateCcw className="h-5 w-5" />
+                  </Button>
+                </div>
+              </div>
               <div className="px-4 pt-4">
-                {activeMessages.length === 0 && (
-                  <div className="text-center text-4xl font-semibold tracking-tight opacity-80">M4RC1L</div>
-                )}
+                {/* Desktop-only title */}
+                <div className="hidden md:block">
+                  {activeMessages.length === 0 && (
+                    <div className="text-center text-4xl font-semibold tracking-tight opacity-80">M4RC1L</div>
+                  )}
+                </div>
                 {banner && (
                   <div className="mt-3 border rounded bg-yellow-50 dark:bg-yellow-950/30 text-yellow-800 dark:text-yellow-200 px-3 py-2 text-sm text-center">
                     {banner}
@@ -477,9 +497,14 @@ export default function M4RC1LPage() {
               <div className="flex-1 px-4 py-4 min-h-0">
                 <div className="h-full rounded border bg-background/60 overflow-hidden flex flex-col min-h-0">
                   <ScrollArea className="flex-1 min-h-0 w-full overscroll-contain">
-                    <div ref={listRef} className="p-4 space-y-4">
+                    <div ref={listRef} className="p-4 space-y-4 pb-28 md:pb-4">
                       {activeMessages.length === 0 ? (
-                        <div className="text-center text-sm opacity-60 mt-8">What&apos;s on your mind?</div>
+                        <>
+                          {/* Mobile empty state */}
+                          <div className="md:hidden text-center text-xl font-medium opacity-80 mt-20">Where should we begin?</div>
+                          {/* Desktop empty state */}
+                          <div className="hidden md:block text-center text-sm opacity-60 mt-8">What&apos;s on your mind?</div>
+                        </>
                       ) : (
                         activeMessages.map((m, i) => {
                           const isUser = m.role === "user";
@@ -539,7 +564,8 @@ export default function M4RC1LPage() {
                 </div>
               </div>
 
-              <div className="px-4 pb-4">
+              {/* Desktop composer */}
+              <div className="px-4 pb-4 hidden md:block">
                 <div className="rounded-2xl border p-3 bg-background shadow-sm">
                   <div className="flex items-center gap-2 mb-3">
                     <Button
@@ -592,6 +618,135 @@ export default function M4RC1LPage() {
                   )}
                 </div>
               </div>
+
+              {/* Mobile composer */}
+              <div className="md:hidden fixed bottom-3 left-0 right-0 px-4">
+                <div className="mx-auto max-w-screen-sm">
+                  <form
+                    className="relative flex items-center gap-2 rounded-full border bg-background shadow-lg px-2 py-2"
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      const form = e.currentTarget as HTMLFormElement & { prompt?: HTMLInputElement };
+                      const value = form.prompt?.value?.trim() || "";
+                      if (value && canSend) {
+                        sendStreaming(value);
+                        if (form.prompt) form.prompt.value = "";
+                        inputRef.current?.focus();
+                      }
+                    }}
+                  >
+                    {/* Model picker icon */}
+                    <button
+                      type="button"
+                      aria-label="Choose model"
+                      className="inline-flex h-9 w-9 items-center justify-center rounded-full hover:bg-accent/50 focus:outline-none"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setModelMenuOpen((v) => !v);
+                      }}
+                    >
+                      {/* Custom SVG icon */}
+                      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 16 16" className="text-foreground">
+                        <path fill="currentColor" d="M10.628 7.25a2.25 2.25 0 1 1 0 1.5H8.622a2.25 2.25 0 0 1-2.513 1.466L5.03 12.124a2.25 2.25 0 1 1-1.262-.814l1.035-1.832A2.25 2.25 0 0 1 4.25 8c0-.566.209-1.082.553-1.478L3.768 4.69a2.25 2.25 0 1 1 1.262-.814l1.079 1.908A2.25 2.25 0 0 1 8.622 7.25ZM2.5 2.5a.75.75 0 1 0 1.5 0a.75.75 0 0 0-1.5 0m4 4.75a.75.75 0 1 0 0 1.5a.75.75 0 0 0 0-1.5m6.25 0a.75.75 0 1 0 0 1.5a.75.75 0 0 0 0-1.5m-9.5 5.5a.75.75 0 1 0 0 1.5a.75.75 0 0 0 0-1.5"/>
+                      </svg>
+                    </button>
+                    {/* Model dropdown menu */}
+                    {modelMenuOpen && (
+                      <div
+                        className="absolute bottom-14 left-2 z-20 w-64 rounded-lg border bg-background shadow-md p-1"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <div className="px-2 py-1.5 text-xs uppercase tracking-wider opacity-60">Models</div>
+                        <div className="max-h-64 overflow-auto">
+                          {ALLOWED.map((mItem) => (
+                            <button
+                              key={mItem.id}
+                              type="button"
+                              className={`w-full text-left px-3 py-2 rounded-md hover:bg-accent/60 ${model === mItem.id ? "bg-accent/40" : ""}`}
+                              onClick={() => {
+                                setModel(mItem.id);
+                                setModelMenuOpen(false);
+                              }}
+                            >
+                              <div className="text-sm font-medium">{mItem.label}</div>
+                              <div className="text-xs opacity-60 truncate">{mItem.id}</div>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    <Input
+                      ref={inputRef}
+                      name="prompt"
+                      placeholder="Ask anything"
+                      disabled={!canSend}
+                      className="flex-1 border-0 shadow-none focus-visible:ring-0 px-2"
+                    />
+                    <Button type="submit" disabled={!canSend} size="icon" className="rounded-full">
+                      <Send className="h-5 w-5" />
+                    </Button>
+                  </form>
+                </div>
+              </div>
+
+              {/* Mobile sidebar drawer */}
+              {mobileSidebarOpen && (
+                <div className="md:hidden">
+                  {/* overlay */}
+                  <div className="fixed inset-0 z-30 bg-black/40" onClick={() => setMobileSidebarOpen(false)} />
+                  {/* drawer */}
+                  <div className="fixed inset-y-0 left-0 z-40 w-80 max-w-[85vw] bg-background border-r shadow-lg flex flex-col">
+                    <div className="p-3 border-b flex items-center justify-between">
+                      <div className="font-semibold tracking-tight">Chats</div>
+                      <Button size="sm" variant="secondary" onClick={() => {
+                        const nextId = `s-${idCounterRef.current++}`;
+                        const next: Session = { id: nextId, title: "New chat", messages: [] };
+                        setSessions((prev) => {
+                          const updated = [...prev, next];
+                          setActive(updated.length - 1);
+                          return updated;
+                        });
+                        setMobileSidebarOpen(false);
+                      }}>New Chat</Button>
+                    </div>
+                    <ScrollArea className="flex-1 p-2">
+                      <div className="space-y-2 text-sm">
+                        {sessions.map((s, i) => (
+                          <div
+                            key={s.id}
+                            onClick={() => { setActive(i); setMobileSidebarOpen(false); }}
+                            className={`flex items-center justify-between gap-2 rounded-md border px-3 py-2 hover:bg-accent/50 cursor-pointer ${i === active ? "bg-accent/40 border-accent" : "bg-background"}`}
+                          >
+                            <div className="truncate">{s.title || `Chat ${i + 1}`}</div>
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSessions((prev) => {
+                                  const arr = [...prev];
+                                  arr.splice(i, 1);
+                                  setActive((cur) => Math.max(0, Math.min(cur, arr.length - 1)));
+                                  return arr.length ? arr : [{ id: "s-1", title: "New chat", messages: [] }];
+                                });
+                              }}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+                    </ScrollArea>
+                    <div className="p-3 border-t">
+                      <Button variant="outline" className="w-full" onClick={() => {
+                        setSessions([{ id: "s-1", title: "New chat", messages: [] }]);
+                        setActive(0);
+                        setMobileSidebarOpen(false);
+                      }}>Clear all chats</Button>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </ResizablePanel>
         </ResizablePanelGroup>
