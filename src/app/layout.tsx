@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-// Navbar and footer are rendered per-page (home includes footer).
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -16,6 +15,12 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "M4RC1L Chat MVP",
   description: "Minimal chat client for multiple OpenRouter models",
+  icons: {
+    icon: [
+      { url: "/favicon.svg", type: "image/svg+xml" },
+      { url: "/favicon-16x16.svg", sizes: "16x16", type: "image/svg+xml" },
+    ],
+  },
 };
 
 export default function RootLayout({
@@ -24,9 +29,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className="scrollbar-hide">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased scrollbar-hide`}
       >
   {children}
       </body>

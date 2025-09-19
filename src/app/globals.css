@@ -121,6 +121,22 @@
   }
 }
 
+/* Global scrollbar hiding (html & body) */
+html, body {
+  -ms-overflow-style: none; /* IE/Edge */
+  scrollbar-width: none; /* Firefox */
+}
+html::-webkit-scrollbar, body::-webkit-scrollbar {
+  display: none; /* Chrome/Safari */
+}
+
+/* Lenis helper styles */
+html.lenis, html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+.lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
+.lenis.lenis-stopped { overflow: hidden; }
+.lenis.lenis-smooth iframe { pointer-events: none; }
+
 /* Custom font: Brightwall */
 @font-face {
   font-family: "Brightwall";
@@ -136,5 +152,13 @@
   }
   .text-shadow {
     text-shadow: 0 2px 0 rgba(0,0,0,0.35), 0 6px 18px rgba(0,0,0,0.25);
+  }
+  /* Hide scrollbar utility */
+  .scrollbar-hide {
+    -ms-overflow-style: none; /* IE/Edge */
+    scrollbar-width: none; /* Firefox */
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none; /* Chrome/Safari */
   }
 }
