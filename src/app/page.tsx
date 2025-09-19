@@ -3,8 +3,7 @@
 import { Hero, Footer } from "@/components/common"; 
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { useEffect, useState } from "react";
-import { toast } from "sonner";
+import { useEffect } from "react";
 import { ChatPreview } from "@/components/sections/ChatPreview";
 import ImageGenTrail from "@/components/sections/ImageGenTrail";
 import Lenis from "lenis"
@@ -15,7 +14,7 @@ export default function DemoOne() {
 
   useEffect(() => {
     const lenis = new Lenis();
-    function raf(time: any) {
+    function raf(time: number) {
       lenis.raf(time);
       requestAnimationFrame(raf);
     }
@@ -31,16 +30,7 @@ export default function DemoOne() {
     
 
   ];
-const [value, setValue] = useState("");
-	const [isLoading, setIsLoading] = useState(false);
 
-	const handleSubmit = () => {
-		setIsLoading(true);
-		setTimeout(() => {
-			toast(value);
-			setIsLoading(false);
-		}, 1000);
-	};
   return (
    <main className="min-h-screen w-full relative overflow-x-hidden scrollbar-hide">
       <Hero 

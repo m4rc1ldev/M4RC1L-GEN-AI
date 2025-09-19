@@ -1,6 +1,5 @@
-import { Github, Linkedin, Instagram, Mail, ArrowUpRight } from "lucide-react";
+import { Github, Linkedin, Instagram, ArrowUpRight } from "lucide-react";
 import Link from "next/link";
-import Image from "next/image";
 
 // Tailwind + shadcn-styled contact section with social links
 // Uses provided profiles. Add an email or form later if desired.
@@ -42,7 +41,7 @@ export function ContactSection() {
         <div className="flex flex-col items-start gap-6 md:gap-8">
           <div className="space-y-4 max-w-2xl">
             <h2 className="text-3xl md:text-5xl font-mono tracking-tight font-light">
-              Let's Connect
+              Let&apos;s Connect
             </h2>
             <p className="text-muted-foreground text-sm md:text-base leading-relaxed">
               Building adaptive interfaces & AI-powered experiences. Reach out if

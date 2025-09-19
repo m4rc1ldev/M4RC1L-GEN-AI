@@ -23,8 +23,6 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { motion, AnimatePresence } from "motion/react";
-import Anthropic from "@/components/ui/anthropic";
-import AnthropicDark from "@/components/ui/anthropic-dark";
 
 const OPENAI_SVG = (
     <div>

@@ -4,7 +4,6 @@ import type { ComponentProps, ReactNode } from 'react';
 import { motion, useReducedMotion } from 'motion/react';
 import { Github, Linkedin, Instagram, ExternalLink, Command, Sparkles } from 'lucide-react';
 import Link from 'next/link';
-import Image from 'next/image';
 
 interface FooterLink {
   title: string;

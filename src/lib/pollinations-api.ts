@@ -2,7 +2,7 @@
 export const POLLINATIONS_BASE = "https://text.pollinations.ai";
 
 export interface FetchModelsResponse {
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export async function fetchAvailableModels(): Promise<string[]> {
@@ -11,7 +11,7 @@ export async function fetchAvailableModels(): Promise<string[]> {
     const data: FetchModelsResponse = await response.json();
     
     if (Array.isArray(data)) {
-      const ids = data.map((d: any) => d.id || d.name).filter(Boolean);
+      const ids = data.map((d: Record<string, unknown>) => d.id || d.name).filter(Boolean) as string[];
       return ids.length ? ids : ["openai"];
     } else if (data && typeof data === "object") {
       const keys = Object.keys(data).slice(0, 12);

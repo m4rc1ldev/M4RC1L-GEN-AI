@@ -6,10 +6,10 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Loader2, Plus, Trash2, MessageSquare, Image as ImageIcon, Video, UploadCloud, Settings, Layers } from "lucide-react";
+import { Loader2, Plus, Trash2, MessageSquare, Image as ImageIcon, Settings } from "lucide-react";
 import { Sidebar, SidebarBody, SidebarLink } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";// Import lib functions
-import type { ChatThread } from "@/lib/types";
+import type { ChatThread, ChatMessage } from "@/lib/types";
 import { fetchNonStreamingResponse } from "@/lib/pollinations-api";
 import { 
   createUserMessage, 
@@ -20,7 +20,7 @@ import {
 import { usePollinationsModels } from "@/hooks/use-pollinations-models";
 import { useAutoScroll } from "@/hooks/use-auto-scroll";
 
-export default function PollinationsChat({ initialSystem }: { initialSystem?: string }) {
+export default function PollinationsChat() {
   // Sidebar + threads
   const [threads, setThreads] = useState<ChatThread[]>([
     createNewThread("New chat")
@@ -42,7 +42,7 @@ export default function PollinationsChat({ initialSystem }: { initialSystem?: st
   const containerRef = useAutoScroll<HTMLDivElement>(activeThread?.messages);
 
   // Update messages in active thread
-  const setActiveMessages = useCallback((updater: (messages: any[]) => any[]) => {
+  const setActiveMessages = useCallback((updater: (messages: ChatMessage[]) => ChatMessage[]) => {
     setThreads(prev =>
       prev.map(thread =>
         thread.id === activeId

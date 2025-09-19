@@ -34,7 +34,7 @@ export default function ChatPage() {
               <div className="space-y-2">
                 <h2 className="font-mono text-xl font-semibold">Coming Soon</h2>
                 <p className="font-mono text-sm text-muted-foreground max-w-md">
-                  Our AI chat feature is currently under development. We're working hard to bring you
+                  Our AI chat feature is currently under development. We&apos;re working hard to bring you
                   the best conversational AI experience.
                 </p>
               </div>
