@@ -1,14 +1,19 @@
 "use client";
 
-import { Hero, Footer } from "@/components/common"; 
+import { Hero, Footer, LazyWrapper } from "@/components/common"; 
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useEffect } from "react";
 import { ChatPreview } from "@/components/sections/ChatPreview";
-import ImageGenTrail from "@/components/sections/ImageGenTrail";
-import Lenis from "lenis"
 import { ContactSection } from "@/components/sections/ContactSection";
+import Lenis from "lenis"
+import dynamic from "next/dynamic";
 
+// Lazy load heavy components
+const ImageGenTrail = dynamic(() => import("@/components/sections/ImageGenTrail"), {
+  ssr: false,
+  loading: () => <div className="h-[200px] animate-pulse bg-muted/50 rounded-lg" />
+});
 
 export default function DemoOne() {
 
@@ -38,9 +43,27 @@ export default function DemoOne() {
         description="An adaptive AI engine powers creative generation — images refine, text aligns, and realtime processing streams like thought. Models coordinate intelligently, revealing structured potential inside unstructured ideas."
         links={navigationLinks}
       />
-      <ChatPreview />
-      <ImageGenTrail />
-      <ContactSection />
+      <LazyWrapper 
+        fallback={<div className="h-[300px] animate-pulse bg-muted/20 rounded-lg mx-6" />}
+        threshold={0.1}
+        rootMargin="200px"
+      >
+        <ChatPreview />
+      </LazyWrapper>
+      <LazyWrapper 
+        fallback={<div className="h-[400px] animate-pulse bg-muted/20 rounded-lg mx-6" />}
+        threshold={0.1}
+        rootMargin="200px"
+      >
+        <ImageGenTrail />
+      </LazyWrapper>
+      <LazyWrapper 
+        fallback={<div className="h-[300px] animate-pulse bg-muted/20 rounded-lg mx-6" />}
+        threshold={0.1}
+        rootMargin="100px"
+      >
+        <ContactSection />
+      </LazyWrapper>
       <Footer />
       {/* Floating Start Chat Button */}
       <div className="fixed bottom-4 hidden md:block right-4 z-50">

@@ -6,6 +6,19 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   // Ensure trailingSlash is disabled to avoid export-like behavior.
   trailingSlash: false,
+  // Performance optimizations
+  compress: true,
+  poweredByHeader: false,
+  // Bundle analyzer and optimization
+  experimental: {
+    optimizePackageImports: ['lucide-react', 'framer-motion'],
+  },
+  turbopack: {
+    resolveAlias: {
+      underscore: 'lodash',
+      mocha: { browser: 'mocha/browser-entry.js' },
+    },
+  },
   images: {
     remotePatterns: [
       {
@@ -23,7 +36,12 @@ const nextConfig: NextConfig = {
         hostname: 'image.pollinations.ai',
         pathname: '/**',
       }
-    ]
+    ],
+    // Image optimization settings
+    formats: ['image/webp', 'image/avif'],
+    minimumCacheTTL: 60,
+    dangerouslyAllowSVG: true,
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   }
 };
 

@@ -1,4 +1,4 @@
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import { gsap } from 'gsap';
 import React from 'react';
 
@@ -1191,12 +1191,32 @@ interface ImageTrailProps {
 
 export default function ImageTrail({ items = [], variant = 1 }: ImageTrailProps) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Check if device is mobile
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768); // md breakpoint
+    };
+
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   useEffect(() => {
-    if (!containerRef.current) return;
+    // Skip initialization on mobile devices
+    if (isMobile || !containerRef.current) return;
+
     const Cls = variantMap[variant] || variantMap[1];
     new Cls(containerRef.current);
-  }, [variant, items]);
+  }, [variant, items, isMobile]);
+
+  // Don't render anything on mobile devices
+  if (isMobile) {
+    return null;
+  }
 
   return (
     <div className="w-full h-full relative z-[100] rounded-lg bg-transparent overflow-visible" ref={containerRef}>

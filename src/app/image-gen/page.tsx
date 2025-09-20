@@ -1,8 +1,18 @@
 "use client";
-import { PollinationsImageGen } from "@/components/features/image-gen";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { ThemeToggle } from "@/components/common/theme-toggle";
+import dynamic from "next/dynamic";
+
+// Lazy load the image generation component
+const PollinationsImageGen = dynamic(() => import("@/components/features/image-gen/pollinations-image-gen"), {
+  loading: () => (
+    <div className="animate-pulse space-y-4">
+      <div className="h-8 bg-muted rounded w-1/3"></div>
+      <div className="h-96 bg-muted rounded-lg"></div>
+    </div>
+  ),
+  ssr: false
+});
 
 export default function ImageGenPage() {
   return (
@@ -16,7 +26,6 @@ export default function ImageGenPage() {
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <ThemeToggle />
             <Button asChild variant="outline" className="rounded-full font-mono">
               <Link href="/">Back to Home</Link>
             </Button>

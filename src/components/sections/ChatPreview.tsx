@@ -35,7 +35,7 @@ export function ChatPreview() {
             <Link href="/">Share now</Link>
           </Button>
           <Button asChild variant="outline" className="rounded-full  font-mono px-6 h-11 cursor-pointer font-light bg-white text-black hover:bg-black hover:text-white transition-colors duration-300 ease-in-out">
-            <Link href="/M4RC1L">Open Chat</Link>
+            <Link href="/chat">Open Chat</Link>
           </Button>
         </div>
         <div className="w-full max-w-xl ">

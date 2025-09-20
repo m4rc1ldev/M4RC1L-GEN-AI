@@ -17,6 +17,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import type { ChatStatus, FileUIPart } from "ai";
+import Image from "next/image";
 import {
   ImageIcon,
   Loader2Icon,
@@ -89,12 +90,13 @@ export function PromptInputAttachment({
       {...props}
     >
       {data.mediaType?.startsWith("image/") && data.url ? (
-        <img
+        <Image
           alt={data.filename || "attachment"}
           className="size-full rounded-md object-cover"
           height={56}
           src={data.url}
           width={56}
+          loading="lazy"
         />
       ) : (
         <div className="flex size-full items-center justify-center text-muted-foreground">
